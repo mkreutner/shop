@@ -1,0 +1,25 @@
+FROM node:25-alpine
+
+ARG UID
+ARG GID
+ARG USERNAME
+
+RUN apk update && apk add --no-cache sudo shadow bash
+
+# Suppression de l'utilisateur node s'il existe pour éviter les conflits d'UID
+RUN if getent passwd node ; then userdel -r node ; fi
+
+# Création de votre utilisateur custom
+RUN addgroup -g ${GID} ${USERNAME} \
+    && adduser -u ${UID} -G ${USERNAME} -D -s /bin/bash ${USERNAME} \
+    && echo "${USERNAME} ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers.d/${USERNAME}
+
+WORKDIR /app
+
+# On s'assure que le dossier appartient à l'utilisateur
+RUN chown ${USERNAME}:${USERNAME} /app
+
+USER ${USERNAME}
+
+EXPOSE 3000
+

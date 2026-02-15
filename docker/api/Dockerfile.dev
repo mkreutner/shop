@@ -1,0 +1,32 @@
+FROM php:8.2-fpm-alpine
+
+# Arguments de build
+ARG UID
+ARG GID
+ARG USERNAME
+
+# Installation des dépendances
+RUN apk update && apk add --no-cache \
+    postgresql-dev \
+    libpq-dev \
+    git \
+    unzip \
+    sudo \
+    shadow # Pour usermod
+
+# Création de l'utilisateur (syntaxe Alpine)
+RUN addgroup -g ${GID} ${USERNAME} \
+    && adduser -u ${UID} -G ${USERNAME} -D -s /bin/sh ${USERNAME} \
+    && echo "${USERNAME} ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers.d/${USERNAME}
+
+# Installation des extensions PHP
+RUN docker-php-ext-install pdo pdo_pgsql
+
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+WORKDIR /var/www
+
+# On passe sur l'utilisateur créé
+USER ${USERNAME}
+
+EXPOSE 80
