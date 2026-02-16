@@ -4,14 +4,14 @@ ARG UID
 ARG GID
 ARG USERNAME
 
-RUN apk update && apk add --no-cache sudo shadow
+RUN apk update && apk add --no-cache sudo shadow bash
 
 # Suppression de l'utilisateur node s'il existe pour éviter les conflits d'UID
 RUN if getent passwd node ; then userdel -r node ; fi
 
 # Création de votre utilisateur custom
 RUN addgroup -g ${GID} ${USERNAME} \
-    && adduser -u ${UID} -G ${USERNAME} -D -s /bin/sh ${USERNAME} \
+    && adduser -u ${UID} -G ${USERNAME} -D -s /bin/bash ${USERNAME} \
     && echo "${USERNAME} ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers.d/${USERNAME}
 
 WORKDIR /app

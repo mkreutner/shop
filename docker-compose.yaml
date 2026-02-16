@@ -90,26 +90,25 @@ services:
     user: ${USER_ID}:${GROUP_ID}
 
   # Shop pour les clients
-  #shop:
-    #build:
-      #context: .
-      #dockerfile: docker/shop/Dockerfile.dev
-      #args:
-        #UID: ${USER_ID}
-        #GID: ${GROUP_ID}
-        #USERNAME: ${USERNAME}
-    #container_name: shop
-    #hostname: shop
-    #restart: ${DOCKER_RESTART_POLICY}
-    #environment:
-      #- REACT_APP_API_URL=${API_URL}
-    #volumes:
-      #- ./src/shop:/app
-      #- ./docker/shop/entrypoint.sh:/usr/local/bin/entrypoint.sh
-    #tty: true
-    #stdin_open: true
-    #entrypoint: ["entrypoint.sh"]
-    #user: ${USER_ID}:${GROUP_ID}
+  shop:
+    build:
+      context: .
+      dockerfile: docker/shop/Dockerfile.dev
+      args:
+        UID: ${USER_ID}
+        GID: ${GROUP_ID}
+        USERNAME: ${USERNAME}
+    container_name: shop
+    hostname: shop
+    restart: ${DOCKER_RESTART_POLICY}
+    environment:
+      - REACT_APP_API_URL=${API_URL}
+    volumes:
+      - ./src/shop:/app
+      - ./docker/shop/entrypoint.sh:/usr/local/bin/entrypoint.sh
+    stdin_open: true
+    entrypoint: ["entrypoint.sh"]
+    user: ${USER_ID}:${GROUP_ID}
 
 networks:
   default:
