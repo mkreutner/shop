@@ -1,14 +1,14 @@
 #!/bin/bash
 set -e
 
-export TERM=dump
-export NO_COLORS=1
+export TERM=xterm-256color
 
 if [ ! -f "package.json" ]; then
   echo "📦 Dossier vide, création du projet Vite (React-TS)..."
 
   sudo npm install -g npm@11.10.0
-  npm create vite@8.3.0 test -- --yes --template react-ts
+  npm install create-vite@latest
+  npm create vite@latest . --yes -- --template react-ts
 
   echo "✅ Projet créé avec succès."
 
@@ -27,6 +27,8 @@ fi
 if [ -f "package.json" ]; then
   echo "🔧 Configuration du host pour Docker..."
   sed -i 's/"dev": "vite"/"dev": "vite --host 0.0.0.0 --port 3000"/' package.json
+
+  npm run dev
 fi
 
 echo "🚀 Démarrage du conteneur..."

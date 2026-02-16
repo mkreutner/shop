@@ -85,7 +85,6 @@ services:
     volumes:
       - ./src/bo:/app
       - ./docker/bo/entrypoint.sh:/usr/local/bin/entrypoint.sh
-    tty: true
     stdin_open: true
     entrypoint: ["entrypoint.sh"]
     user: ${USER_ID}:${GROUP_ID}

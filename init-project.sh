@@ -11,8 +11,8 @@ else
 fi
 
 echo "🏗️  Construction des images avec les Dockerfile.dev et lancement des containers..."
-${DOCKER_COMPOSE_CMD} up -d --build
-${DOCKER_COMPOSE_CMD} logs -f bo
+${DOCKER_COMPOSE_CMD} --build
+${DOCKER_COMPOSE_CMD} run --rm bo
 
 echo "⚙️  Configuration automatique de la DB Laravel..."
 # On utilise 'sed' pour modifier le .env généré par Laravel
