@@ -1,18 +1,23 @@
 services:
   # Base de données
-  #db:
-    #image: postgres:${POSTGRES_VERSION}
-    #container_name: db
-    #hostname: db
-    #restart: ${DOCKER_RESTART_POLICY}
-    #environment:
-      #POSTGRES_DB: ${DB_NAME}
-      #POSTGRES_USER: ${DB_USER}
-      #POSTGRES_PASSWORD: ${DB_PASSWORD}
-    #ports:
-      #- "${DB_PORT}:5432"
-    #volumes:
-      #- db_data:/var/lib/postgresql/data
+  db:
+    image: postgres:${POSTGRES_VERSION}
+    container_name: db
+    hostname: db
+    restart: ${DOCKER_RESTART_POLICY}
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "${DB_PORT}:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d shop_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   # Ngrok
   #ngrok:
@@ -46,27 +51,32 @@ services:
       #- shop
 
   # API
-  #api:
-    #build:
-      #context: .
-      #dockerfile: docker/api/Dockerfile.dev
-      #args:
-        #UID: ${USER_ID}
-        #GID: ${GROUP_ID}
-        #USERNAME: ${USERNAME}
-    #container_name: api
-    #hostname: api
-    #restart: ${DOCKER_RESTART_POLICY}
-    #environment:
-      #DB_HOST: db
-      #DB_DATABASE: ${DB_NAME}
-      #DB_USERNAME: ${DB_USER}
-      #DB_PASSWORD: ${DB_PASSWORD}
-    #volumes:
-      #- ./src/api:/var/www
-      #- ./docker/api/entrypoint.sh:/usr/local/bin/entrypoint.sh
-    #entrypoint: ["entrypoint.sh"]
-    #user: ${USER_ID}:${GROUP_ID}
+  api:
+    build:
+      context: .
+      dockerfile: docker/api/Dockerfile.dev
+      args:
+        UID: ${USER_ID}
+        GID: ${GROUP_ID}
+        USERNAME: ${USERNAME}
+    container_name: api
+    hostname: api
+    restart: ${DOCKER_RESTART_POLICY}
+    environment:
+      DB_HOST: db
+      DB_DATABASE: ${DB_NAME}
+      DB_USERNAME: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - 8000:8000
+    volumes:
+      - ./src/api:/var/www
+      - ./docker/api/entrypoint.sh:/usr/local/bin/entrypoint.sh
+    entrypoint: ["entrypoint.sh"]
+    user: ${USER_ID}:${GROUP_ID}
+    depends_on:
+      db:
+        condition: service_healthy
 #
   # Backoffice pour les équipes internes (commerciaux, communication, logistique, ...)
   bo:
@@ -88,6 +98,8 @@ services:
     stdin_open: true
     entrypoint: ["entrypoint.sh"]
     user: ${USER_ID}:${GROUP_ID}
+    depends_on:
+      - api
 
   # Shop pour les clients
   shop:
@@ -109,6 +121,8 @@ services:
     stdin_open: true
     entrypoint: ["entrypoint.sh"]
     user: ${USER_ID}:${GROUP_ID}
+    depends_on:
+      - api
 
 networks:
   default:
