@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-if [ ! -f "package.json" ]; then
+if [ ! -f "composer.json" ]; then
   echo "📦 Dossier vide, création du projet api (PHP Laravel)..."
   composer create-project laravel/laravel .
 fi
@@ -10,6 +10,10 @@ fi
 if [ ! -d "vendor" ]; then
   echo "🐘 Installation de Composer..."
   composer install --no-interaction --optimize-autoloader
+fi
+
+if [ -f "package.json" ]; then
+  npm install && npm run build
 fi
 
 # 2. Permissions vitales pour Laravel
