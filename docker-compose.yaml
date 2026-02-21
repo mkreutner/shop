@@ -20,35 +20,35 @@ services:
       retries: 5
 
   # Ngrok
-  #ngrok:
-    #image: ngrok/ngrok:debian
-    #container_name: ngrok
-    #hostname: ngrok
-    #network_mode: host
-    #restart: ${DOCKER_RESTART_POLICY}
-    #environment:
-      #- NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN}
-    #command:
-      #- 'http'
-      #- 'localhost:80'
-      #- '--url=${NGROK_DOMAIN}'
-    #depends_on:
-      #- nginx
-#
+  ngrok:
+    image: ngrok/ngrok:debian
+    container_name: ngrok
+    hostname: ngrok
+    network_mode: host
+    restart: ${DOCKER_RESTART_POLICY}
+    environment:
+      - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN}
+    command:
+      - 'http'
+      - 'localhost:80'
+      - '--url=${NGROK_DOMAIN}'
+    depends_on:
+      - nginx
+
   # Reverse proxy
-  #nginx:
-    #image: nginx:alpine
-    #container_name: nginx
-    #hostname: nginx
-    #restart: ${DOCKER_RESTART_POLICY}
-    #ports:
-      #- "${NGINX_PORT}:80"
-    #volumes:
-      #- ./docker/nginx/etc/nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf
-    #depends_on:
-      #- api
-      #- bo
-      #- shop
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    hostname: nginx
+    restart: ${DOCKER_RESTART_POLICY}
+    ports:
+      - "${NGINX_PORT}:80"
+    volumes:
+      - ./docker/nginx/etc/nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - api
+      - bo
+      - shop
 
   # API
   api:
@@ -69,8 +69,6 @@ services:
       DB_DATABASE: ${DB_NAME}
       DB_USERNAME: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
-    ports:
-      - 8000:8000
     volumes:
       - ./src/api:/var/www
       - ./docker/api/entrypoint.sh:/usr/local/bin/entrypoint.sh
@@ -79,7 +77,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
-#
+
   # Backoffice pour les équipes internes (commerciaux, communication, logistique, ...)
   bo:
     build:
@@ -94,6 +92,7 @@ services:
     restart: ${DOCKER_RESTART_POLICY}
     environment:
       - REACT_APP_API_URL=${API_URL}
+      - VITE_TUNNEL_URL=${NGROK_DOMAIN}
     volumes:
       - ./src/bo:/app
       - ./docker/bo/entrypoint.sh:/usr/local/bin/entrypoint.sh

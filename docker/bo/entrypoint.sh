@@ -26,7 +26,7 @@ fi
 # On s'assure que Vite écoute sur toutes les interfaces (0.0.0.0)
 if [ -f "package.json" ]; then
   echo "🔧 Configuration du host pour Docker..."
-  sed -i 's/"dev": "vite"/"dev": "vite --host 0.0.0.0 --port 3000"/' package.json
+  #sed -i 's/"dev": "vite"/"dev": "vite --host 0.0.0.0 --port 3000"/' package.json
 
   npm run dev
 fi
